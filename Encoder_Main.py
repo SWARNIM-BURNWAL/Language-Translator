@@ -33,12 +33,20 @@ class MultiHeadAttention(nn.Module):
 
     def forward(self, x: Tensor, mask: Tensor = None):
         batch_size, sequence_length, d_model = x.size()
+        print(f"Batch Size:  {batch_size}")
+        print(f"Sequence Length:  {sequence_length}")
+        print(f"Model Size:  {d_model}")
         qkv: Tensor = self.qkv_layer(x)
-        # q, k, v = split(qkv, d_model, dim=-1)
+        print(f"qkv.size(): {qkv.size()}")
         qkv = qkv.reshape(batch_size, sequence_length,
                           self.heads, 3*self.head_dim)
+        print(f"qkv.size(): {qkv.size()}")
         qkv = qkv.permute(0, 2, 1, 3)
-        q,k,v = qkv.chunk(3, dim=-1)
+        print(f"qkv.size() after permute: {qkv.size()}")
+        q, k, v = qkv.chunk(3, dim=-1)
+        print(f"Q Size:  {q.size()}")
+        print(f"K Size:  {k.size()}")
+        print(f"V Size:  {v.size()}")
         values, attention = scaled_dot_product_attention(q, k, v, mask)
         values = values.reshape(
             batch_size, sequence_length, self.heads*self.head_dim)
@@ -111,24 +119,31 @@ class EncoderLayer(nn.Module):
         residual_x = x
         print("------- ATTENTION 1 ------")
         x = self.attention(x, mask=None)
+        print(f"X after attention:  {x}")
         print("------- DROPOUT 1 ------")
         x = self.dropout1(x)
+        print(f"X after first dropout:  {x}")
         print("------- ADD AND LAYER NORMALIZATION 1 ------")
         x = self.normalisation1(x + residual_x)
+        print(f"X after layer normalisation:  {x}")
         residual_x = x
         print("------- ATTENTION 2 ------")
         x = self.feed_forward_network(x)
+        print(f"X after feed forward network:  {x}")
         print("------- DROPOUT 2 ------")
         x = self.dropout2(x)
+        print(f"X after second dropout:  {x}")
         print("------- ADD AND LAYER NORMALIZATION 2 ------")
         x = self.normalisation2(x + residual_x)
+        print(f"X after layer normalisation:  {x}")
         return x
+
 
 class Encoder(nn.Module):
     def __init__(self, d_model, ffn_hidden, num_heads, drop_prob, num_layers):
         super().__init__()
         self.layers = nn.Sequential(*[EncoderLayer(d_model, ffn_hidden, num_heads, drop_prob)
-                                     for _ in range(num_layers)])
+                                      for _ in range(num_layers)])
 
     def forward(self, x):
         x = self.layers(x)
