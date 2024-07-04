@@ -1,13 +1,9 @@
 import math
-import numpy as np
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor, split, matmul, ones, zeros, sqrt
+from torch import Tensor,matmul, ones, zeros, sqrt,randn
 
 # scaled dot-product attention
-
-
 def scaled_dot_product_attention(Q, K, V, mask=None):
     d_k = Q.size(-1)
     scores = matmul(Q, K.transpose(-2, -1)) / math.sqrt(d_k)
@@ -17,13 +13,12 @@ def scaled_dot_product_attention(Q, K, V, mask=None):
     values = matmul(attention, V)
     return values, attention
 
-
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model: int, heads: int):
-        super().__init__()
+        super(MultiHeadAttention,self).__init__()
         self.d_model = d_model  # 512
         self.heads = heads  # 8
-        self.head_dim = d_model//heads
+        self.head_dim = self.d_model // self.heads  # 64
         # to perform the operation parallely we are stacking up the vectors
         self.qkv_layer = nn.Linear(d_model, 3*d_model)
         print(self.qkv_layer.weight.data.shape, self.qkv_layer.bias.data.shape)
@@ -162,5 +157,7 @@ encoder = Encoder(d_model, ffn_hidden, num_heads, drop_prob, num_layers)
 
 
 # includes positional encoding
-x = torch.randn((batch_size, max_sequence_length, d_model))
+x = randn((batch_size, max_sequence_length, d_model))
 out = encoder(x)
+
+
