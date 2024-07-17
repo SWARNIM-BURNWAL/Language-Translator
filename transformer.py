@@ -1,7 +1,7 @@
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor, matmul, ones, zeros, sqrt, device, cuda, pow, cos, sin, stack, arange, flatten, float, tensor, stack, backends
+from torch import Tensor, matmul, ones, zeros, sqrt, device,  pow, cos, sin, stack, arange, flatten, float, tensor, stack
 
 
 def get_device():
@@ -307,11 +307,11 @@ class DecoderLayer(nn.Module):
         self.feed_forward_network = PointFeedForward(
             d_model=d_model, hidden_ffn=ffn_hidden, dropout=drop_prob)
 
-    def forward(self, x, y,  self_attention_mask, cross_attention_mask):
+    def forward(self, x:Tensor, y:Tensor,  self_attention_mask, cross_attention_mask):
         residual_y = y
         print("------- MASKED SELF ATTENTION  ------")
         y = self.attention(y, mask=self_attention_mask)  # 30, 200, 512
-        print(f"Y after attention:  {y}")
+        print(f"Y after attention:  {y}") 
         print("------- DROPOUT 1 ------")
         y = self.dropout1(y)  # 30, 200, 512
         print(f"Y after first dropout:  {y}")
