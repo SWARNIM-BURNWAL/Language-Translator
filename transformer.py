@@ -234,11 +234,11 @@ class EncoderLayer(nn.Module):
         self.feed_forward_network = PointFeedForward(
             d_model=d_model, hidden_ffn=ffn_hidden, dropout=drop_prob)
 
-    def forward(self, y, self_attetion_mask):
+    def forward(self, y:Tensor, self_attetion_mask):
         residual_x = y
         print("------- ATTENTION 1 ------")
         y = self.attention(y, mask=self_attetion_mask)
-        print(f"X after attention:  {y}")
+        print(f"X after attention:  {y.data}")
         print("------- DROPOUT 1 ------")
         y = self.dropout1(y)
         print(f"X after first dropout:  {y}")
